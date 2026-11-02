@@ -1,25 +1,131 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>B2 STUDIO</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 STUDIO - Free Video Editor</title>
 <style>
-body{background:#000;color:#fff;font-family:Arial;text-align:center;margin:0;padding:20px}
-h1{color:#ff0040;font-size:32px}
-.card{background:#111;padding:20px;border-radius:15px;margin:20px auto;max-width:600px}
-.btn{display:inline-block;background:#ff0040;color:#fff;padding:15px 30px;border-radius:30px;text-decoration:none;font-weight:bold}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:#000;color:#fff;min-height:100vh}
+.header{text-align:center;padding:30px 15px}
+.header h1{color:#ff0040;font-size:38px}
+.header p{color:#aaa;margin-top:8px}
+.card{background:#111;border-radius:20px;padding:25px 15px;margin:15px auto;max-width:480px;text-align:center;border:1px solid #222}
+.btn{display:inline-block;background:#ff0040;color:#fff;padding:14px 28px;border-radius:50px;text-decoration:none;font-weight:700;margin-top:15px}
+.tabs{display:flex;gap:8px;justify-content:center;margin:20px;flex-wrap:wrap}
+.tab{background:#1a1a1a;border:1px solid #333;color:#fff;padding:10px 18px;border-radius:20px;cursor:pointer}
+.tab.active{background:#ff0040;border-color:#ff0040}
+.panel{display:none;max-width:800px;margin:0 auto;padding:0 15px 30px}
+.panel.active{display:block}
+.editor-box{background:#111;border:1px solid #222;border-radius:16px;padding:18px}
+input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#000;color:#fff;margin:8px 0}
+label{color:#aaa;font-size:13px;margin-top:10px;display:block;text-align:left}
+video{width:100%;border-radius:12px;background:#000;margin-top:10px}
+.small{font-size:12px;color:#666;margin-top:8px}
 </style>
 </head>
 <body>
+<div class="header">
 <h1>🔥 B2 STUDIO 🔥</h1>
-<p>Cinematic AI Videos | Free Tools</p>
+<p>Cinematic AI Videos | Free Tools - No Watermark</p>
+</div>
 <div class="card">
 <h2>B2 Parking - Ferrari Jacket</h2>
-<p>Video made with FREE Colab</p>
+<p style="color:#ddd;margin:12px 0">Video made with FREE Colab</p>
 <p>✅ AI Videos | ✅ Website | ✅ Apps</p>
-<br>
-<a class="btn" href="https://wa.me/923000000000">Contact WhatsApp</a>
+<a class="btn" href="https://wa.me/923000000000?text=Hi%20B2%20Studio" target="_blank">Contact WhatsApp</a>
 </div>
+<div class="tabs">
+<button class="tab active" onclick="showTab(0)">🏠 Home</button>
+<button class="tab" onclick="showTab(1)">✂️ Editor FREE</button>
+<button class="tab" onclick="showTab(2)">📷 Camera 9:16</button>
+</div>
+<div class="panel active" id="p0">
+<div class="editor-box" style="text-align:center">
+<h3>Welcome to B2 Studio</h3>
+<p style="color:#aaa;margin-top:10px">Your site arhamarham456.github.io/b2-studio/ is LIVE! Use tabs to edit videos free.</p>
+</div>
+</div>
+<div class="panel" id="p1">
+<div class="editor-box">
+<h3>Free Video Editor - No Watermark</h3>
+<label>Upload Video</label>
+<input type="file" id="vidIn" accept="video/*">
+<label>Start sec</label><input type="number" id="sTime" value="0">
+<label>Duration sec</label><input type="number" id="dTime" value="5">
+<label>Text Overlay</label><input type="text" id="tText" value="B2 STUDIO">
+<label>Position</label><select id="tPos"><option value="top">Top</option><option value="center" selected>Center</option><option value="bottom">Bottom</option></select>
+<video id="prev" controls muted playsinline></video>
+<canvas id="cvs" style="display:none"></canvas>
+<button class="btn" style="width:100%" onclick="makeVideo()">Export Short FREE</button>
+<p class="small">100% browser based. Like Alight Motion but free. Best camera for PC: Logitech C920.</p>
+</div>
+</div>
+<div class="panel" id="p2">
+<div class="editor-box">
+<h3>Camera + Shorts Maker 9:16</h3>
+<video id="cam" autoplay muted playsinline></video>
+<button class="btn" style="width:100%;background:#222" onclick="startCam()">Start Camera</button>
+<label style="margin-top:12px">Upload to Convert 9:16</label>
+<input type="file" id="vertIn" accept="video/*">
+<video id="vertPrev" controls muted playsinline></video>
+</div>
+</div>
+<script>
+function showTab(i){
+document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
+document.querySelectorAll('.panel').forEach((p,idx)=>p.classList.toggle('active',idx===i));
+}
+const vidIn=document.getElementById('vidIn');
+const prev=document.getElementById('prev');
+let fileURL=null;
+vidIn.onchange=e=>{
+const f=e.target.files[0];
+if(f){fileURL=URL.createObjectURL(f);prev.src=fileURL;}
+}
+function makeVideo(){
+const canvas=document.getElementById('cvs');
+const ctx=canvas.getContext('2d');
+const text=document.getElementById('tText').value||'B2 STUDIO';
+const pos=document.getElementById('tPos').value;
+if(!fileURL){alert('Upload video first');return;}
+prev.currentTime=parseFloat(document.getElementById('sTime').value)||0;
+prev.play();
+let recorder,chunks=[];
+canvas.width=720;canvas.height=1280;
+const stream=canvas.captureStream(30);
+recorder=new MediaRecorder(stream,{mimeType:'video/webm'});
+recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data)};
+recorder.onstop=()=>{
+const blob=new Blob(chunks,{type:'video/webm'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download='B2-Studio-Short.webm';a.click();
+}
+recorder.start();
+let duration=parseFloat(document.getElementById('dTime').value)*1000;
+function draw(){
+if(prev.paused||prev.ended)return;
+ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
+let vw=prev.videoWidth,vh=prev.videoHeight;
+let scale=Math.max(canvas.width/vw,canvas.height/vh);
+let w=vw*scale,h=vh*scale;
+ctx.drawImage(prev,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
+ctx.fillStyle='white';ctx.font='bold 60px system-ui';ctx.textAlign='center';
+ctx.strokeStyle='black';ctx.lineWidth=8;
+let y=pos==='top'?150:pos==='bottom'?canvas.height-150:canvas.height/2;
+ctx.strokeText(text,canvas.width/2,y);
+ctx.fillText(text,canvas.width/2,y);
+requestAnimationFrame(draw);
+}
+draw();
+setTimeout(()=>{recorder.stop();prev.pause();alert('Exported!');},duration);
+}
+async function startCam(){
+try{
+const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:true});
+document.getElementById('cam').srcObject=s;
+}catch(e){alert('Camera need permission: '+e.message)}
+}
+</script>
 </body>
-</html>
+  </html>
